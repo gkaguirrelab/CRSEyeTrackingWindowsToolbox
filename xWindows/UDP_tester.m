@@ -1,4 +1,4 @@
-
+% test
 
 macHostIP = '130.91.72.120';
 winHostIP = '130.91.74.15';
