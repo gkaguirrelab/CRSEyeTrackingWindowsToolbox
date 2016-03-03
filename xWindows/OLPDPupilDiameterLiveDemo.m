@@ -25,7 +25,7 @@ vetClearDataBuffer;
 % correlates a subject's pupil position with a focal point in visual space.
 % The .scf file is needed in order for the Eye tracker to intialize and
 % function properly.
-calFilePath = 'C:\Users\brainard_lab\Documents\MATLAB\Experiments\VSGEyeTrackerPupillometry\subjectcalibration_current.scf';
+calFilePath = 'C:\Users\melanopsin\Documents\MATLAB\Toolboxes\PupillometryToolbox\xWindows\subjectcalibration_current.scf';
 vetLoadCalibrationFile(calFilePath);
 
 % The way CRS setup the Eye Tracker, we must set a stimulus device, although
