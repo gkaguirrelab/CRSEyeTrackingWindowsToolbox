@@ -78,7 +78,7 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
     % === NEW ====== Wait for ever to receive a signal indicating whether we 
     % will be testing communication delay between Mac and Windows
     runCommTest = VSGOL.receiveParamValue(VSGOL.UDPCOMM_TESTING_STATUS, ...
-        'timeOutSecs', Inf, 'consoleMessage', 'Hey Mac, will we be running UDPcomm delay experiments today?');
+        'timeOutSecs', Inf, 'consoleMessage', 'Hey Mac, will we be running UDPcomm delay experiments today?')
     
     if (runCommTest)
         runComminicationTests(VSGOL);
@@ -364,17 +364,17 @@ function runComminicationTests(VSGOL)
 
     % Wait to receive the UDPtestRepeatsNum
     UDPtestRepeatsNum = VSGOL.receiveParamValue(VSGOL.UDPCOMM_TESTING_REPEATS_NUM, ...
-       'timeOutSecs', 2, 'consoleMessage', 'receiving number of UDPcommunication test repeats');
+       'timeOutSecs', Inf, 'consoleMessage', 'receiving number of UDPcommunication test repeats');
 
     % Test 1. Mac->Windows: Sending a param value - no value checking
     for kRepeat = 1:UDPtestRepeatsNum
         VSGOL.receiveParamValue(VSGOL.UDPCOMM_TESTING_SEND_PARAM, ...
-            'timeOutSecs', 2, 'maxAttemptsNum', 1, 'consoleMessage', 'Test 1: Mac -> Windows, send param');
+            'timeOutSecs', 2,  'consoleMessage', 'Test 1: Mac -> Windows, send param');
     end
 
     % Test 2. Mac <- Windows: Sending a param value - no value checking
     for kRepeat = 1:UDPtestRepeatsNum
-        VSGOL.sendParamValue({OLVSG.UDPCOMM_TESTING_RECEIVE_PARAM, kRepeat*10-2}, ...
+        VSGOL.sendParamValue({VSGOL.UDPCOMM_TESTING_RECEIVE_PARAM, kRepeat*10-2}, ...
             'timeOutSecs', 2.0, 'maxAttemptsNum', 1, 'consoleMessage',  'Test 2: Mac <- Windows, receive param');
     end
 
