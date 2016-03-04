@@ -1,19 +1,25 @@
-function [data, params] = OLFlickerSensivityVSGPupillometry
+% Windows client serving UDP communication requests from 
+% ModulationTrialSequencePupillometryNulledOnLine.m (Mac)
+% These two programs must be run in tanden to conduct the pupillometry experiments.
+%
+% 03/01/2016   NPC  Wrote it (by modifying OLFlickerSensitivityVSGpupillometry) 
+% 03/04/2016   NPC  Added UDP communication tests
+% 
+
+function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
 
     % Housekeeping.
     clear; close all; clc
 
-    addpath(genpath('C:\Users\melanopsin\Documents\MATLAB\Toolboxes\BrainardLabToolbox'));
-    % Ask for observer
+    % Ask if we want to save in Dropbox
+    maxAttempts = 2;
+    nSecsToSave = 5;
     fprintf('\n*********************************************');
     fprintf('\n*********************************************\n');
     saveDropbox = GetWithDefault('Save into Dropbox folder?', 1);
-
-    maxAttempts = 2;
-    nSecsToSave = 5;
-
     
-    %% Initializing Cambridge Researsh System and Other Neccessary Variables
+    
+    % Initialize Cambridge Researsh System and Other Neccessary Variables
     % Global CRS gives us access to a cell structure of the Video Eye Tracker's
     % variables.  Load constants creates this cell structure
     global CRS;
@@ -44,7 +50,11 @@ function [data, params] = OLFlickerSensivityVSGPupillometry
     if vetSelectVideoSource(CRS.vsCamera) < 0
         error('*** Video source not selected.');
     end
-
+    
+    
+    % Add path to brainard lab toolbox to access the OLVSGCommunicator class
+    addpath(genpath('C:\Users\melanopsin\Documents\MATLAB\Toolboxes\BrainardLabToolbox'));
+    
     macHostIP = '130.91.72.120';
     winHostIP = '130.91.74.15';
     udpPort = 2007;
@@ -57,22 +67,30 @@ function [data, params] = OLFlickerSensivityVSGPupillometry
           'udpPort', udpPort, ...      % optional, with default value: 2007
         'verbosity', 'min' ...                   % optional, with default value: 'normal', and possible values: {'min', 'normal', 'max'},
     );
-    % === NEW ======  Instantiate a OLVSGcommunicator object ==============
-    
-    % === NEW ====== Receiving the Wake Up signal from Mac ================
+
+    % === NEW ====== Wait for ever to receive the Wake Up signal from Mac ================
     fprintf('\n<strong>Run OLFlickerSensitivity on Mac and select protocol... </strong>\n');
     VSGOL.receiveParamValue(VSGOL.WAIT_STATUS, ...
         'expectedParamValue', 'Wake Up', ...
         'timeOutSecs', Inf, 'consoleMessage', 'Hey Mac, is there anybody out there?');
     % === NEW ====== Receiving the Wake Up signal from Mac ================
     
+    % === NEW ====== Wait for ever to receive a signal indicating whether we 
+    % will be testing communication delay between Mac and Windows
+    runCommTest = VSGOL.receiveParamValue(VSGOL.UDPCOMM_TESTING_STATUS, ...
+        'timeOutSecs', Inf, 'consoleMessage', 'Hey Mac, will we be running UDPcomm delay experiments today?');
+    
+    if (runCommTest)
+        runComminicationTests(VSGOL);
+    end 
+    
     % === NEW ====== Get param values for labeled param names ==================
-    protocolNameStr = VSGOL.receiveParamValue(VSGOL.PROTOCOL_NAME,       'timeOutSecs', 2, 'consoleMessage', 'receiving protocol name');
+    protocolNameStr = VSGOL.receiveParamValue(VSGOL.PROTOCOL_NAME,       'timeOutSecs', Inf, 'consoleMessage', 'receiving protocol name');
     obsID           = VSGOL.receiveParamValue(VSGOL.OBSERVER_ID,         'timeOutSecs', 2, 'consoleMessage', 'receiving observer ID');
     obsIDAndRun     = VSGOL.receiveParamValue(VSGOL.OBSERVER_ID_AND_RUN, 'timeOutSecs', 2, 'consoleMessage', 'receiving observer ID and run');
     % === NEW ====== Get param values for labeled param names ==================
     
-    % Ask if we want to save in Dropbox
+    % Assemble dropbox paths
     if saveDropbox
         dropboxPath = 'C:\Users\melanopsin\Dropbox (Aguirre-Brainard Lab)\MELA_data';
         savePath = fullfile(dropboxPath, protocolNameStr, obsID, obsIDAndRun);
@@ -342,7 +360,40 @@ function [data, params] = OLFlickerSensivityVSGPupillometry
     fprintf('*** Program completed successfully.\n');
 end
 
+function runComminicationTests(VSGOL)
 
+    % Wait to receive the UDPtestRepeatsNum
+    UDPtestRepeatsNum = VSGOL.receiveParamValue(VSGOL.UDPCOMM_TESTING_REPEATS_NUM, ...
+       'timeOutSecs', 2, 'consoleMessage', 'receiving number of UDPcommunication test repeats');
+
+    % Test 1. Mac->Windows: Sending a param value - no value checking
+    for kRepeat = 1:UDPtestRepeatsNum
+        VSGOL.receiveParamValue(VSGOL.UDPCOMM_TESTING_SEND_PARAM, ...
+            'timeOutSecs', 2, 'maxAttemptsNum', 1, 'consoleMessage', 'Test 1: Mac -> Windows, send param');
+    end
+
+    % Test 2. Mac <- Windows: Sending a param value - no value checking
+    for kRepeat = 1:UDPtestRepeatsNum
+        VSGOL.sendParamValue({OLVSG.UDPCOMM_TESTING_RECEIVE_PARAM, kRepeat*10-2}, ...
+            'timeOutSecs', 2.0, 'maxAttemptsNum', 1, 'consoleMessage',  'Test 2: Mac <- Windows, receive param');
+    end
+
+    % Test 3. Mac->Windows: Sending a param value and wait for response
+    for kRepeat = 1:UDPtestRepeatsNum
+        VSGOL.receiveParamValueAndSendResponse(...
+            {VSGOL.UDPCOMM_TESTING_SEND_PARAM_WAIT_FOR_RESPONSE, 'validCommand1'}, ...         % received from mac
+            {VSGOL.UDPCOMM_TESTING_SEND_PARAM_WAIT_FOR_RESPONSE, 'validCommand2'}, ...        % transmitted back
+            'timeOutSecs', Inf, ...
+            'consoleMessage', 'Test 3: Mac -> Windows, send param, validate value, wait for response' ...
+        );
+    end
+
+    % Now wait for Mac to tell us to proceed with the experiment
+    VSGOL.receiveParamValue(VSGOL.WAIT_STATUS, ...
+        'expectedParamValue', 'Proceed with experiment', ...
+        'timeOutSecs', Inf, 'consoleMessage', 'Hey Mac, should I proceed with the experiment?');
+end
+        
 function canRun = VSGOLEyeTrackerCheck(VSGOL)
     
     vetStopTracking;
