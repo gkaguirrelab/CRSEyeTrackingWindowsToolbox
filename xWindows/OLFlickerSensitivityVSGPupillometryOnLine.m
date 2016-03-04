@@ -78,7 +78,7 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
     % === NEW ====== Wait for ever to receive a signal indicating whether we 
     % will be testing communication delay between Mac and Windows
     runCommTest = VSGOL.receiveParamValue(VSGOL.UDPCOMM_TESTING_STATUS, ...
-        'timeOutSecs', Inf, 'consoleMessage', 'Hey Mac, will we be running UDPcomm delay experiments today?')
+        'timeOutSecs', Inf, 'consoleMessage', 'Hey Mac, will we be running UDPcomm delay experiments today?');
     
     if (runCommTest)
         runComminicationTests(VSGOL);
