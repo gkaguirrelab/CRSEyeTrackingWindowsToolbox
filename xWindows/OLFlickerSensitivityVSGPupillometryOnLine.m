@@ -61,15 +61,11 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
 
     % === NEW ======  Instantiate a OLVSGcommunicator object ==============
     VSGOL = OLVSGcommunicator( ...
-        'signature', 'WindowsSide', ...          % a label indicating the host, used to for user-feedback
+        'signature', 'WindowsSide', ...  % a label indicating the host, used to for user-feedback
           'localIP', winHostIP, ...    % required: the IP of this computer
          'remoteIP', macHostIP, ...    % required: the IP of the computer we want to conenct to
           'udpPort', udpPort, ...      % optional, with default value: 2007
-<<<<<<< HEAD
-        'verbosity', 'none' ...                   % optional, with default value: 'normal', and possible values: {'min', 'normal', 'max'},
-=======
-        'verbosity', 'none' ...        % optional, with default value: 'normal', and possible values: {'none', 'min', 'normal', 'max'},
->>>>>>> c5252c0c31786afaf26bd8a3b7264148ee034932
+        'verbosity', 'none' ...        % optional, with default value: 'normal', and possible values: {'min', 'normal', 'max'},
     );
 
 
@@ -370,7 +366,7 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
     catch err
         
         % ==== NEW ===  Tell mac to abort due to fatal error on our part ===
-        VSGOL.sendParamValue({ABORT_MAC_DUE_TO_WINDOWS_FAILURE, 'Mac, please abort. I (windows) failed you, once again.'}, 'timeOutSecs', 2);
+        VSGOL.sendParamValue({VSGOL.ABORT_MAC_DUE_TO_WINDOWS_FAILURE, 'Mac, please abort. I (windows) failed you, once again.'}, 'timeOutSecs', 2);
         % ==== NEW ===  Send the number of data points to be transferred ===
                 
         % Close the UDP connection
@@ -434,6 +430,7 @@ function canRun = VSGOLEyeTrackerCheck(VSGOL)
             vetStartTracking;
             timeCheck = 5;
             tStart = GetSecs;
+            
             while (GetSecs - tStart < timeCheck)
                 % Collect some checking data
             end
@@ -463,7 +460,7 @@ function canRun = VSGOLEyeTrackerCheck(VSGOL)
         catch err
         
             % ==== NEW ===  Tell mac to abort due to fatal error on our part ===
-            VSGOL.sendParamValue({ABORT_MAC_DUE_TO_WINDOWS_FAILURE, 'Mac, please abort. I (windows) failed you, once again.'}, 'timeOutSecs', 2);
+            VSGOL.sendParamValue({VSGOL.ABORT_MAC_DUE_TO_WINDOWS_FAILURE, 'Mac, please abort. I (windows) failed you, once again.'}, 'timeOutSecs', 2);
             % ==== NEW ===  Send the number of data points to be transferred ===
 
             % Close the UDP connection
