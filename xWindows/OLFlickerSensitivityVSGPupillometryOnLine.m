@@ -121,7 +121,27 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
             %error('offline mode not implemented at this time.  There is unfinished offline code present in this state of the routine.  This error will be removed once the offline code is completed at a future time.');
         end
 
-    
+
+        % ========================= Pre-trial video recording ==========================
+        try
+            fprintf('\nRecording pre-trial loop diagnostics video... ');
+            vetStartTracking;
+            vetStartRecordingToFile(fullfile([saveFile '_diagnostics_PreTrialLoop.cam']));
+            pause(nSecsToSave);
+            vetStopRecording;
+            vetStopTracking;
+            fprintf('Done.\n');
+
+            % Let the Mac know we are done (successfully) with the post-trial diagnostics video recording
+            VSGOL.sendParamValue({VSGOL.DIAGNOSTIC_VIDEO_RECORDING_STATUS, 'sucessful'}, 'timeOutSecs', 2);
+
+        catch err
+            % Let the Mac know we are done (successfully) with the post-trial diagnostics video recording
+            VSGOL.sendParamValue({VSGOL.DIAGNOSTIC_VIDEO_RECORDING_STATUS, 'not sucessful'}, 'timeOutSecs', 2);
+            rethrow(err);
+        end
+
+
         %% Loop over trials
         for i = startTrialNum:nTrials
             %% Initializating variables
@@ -358,6 +378,24 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
 
         end % for i
     
+        % ========================= Post-trial video recording ==========================
+        try
+            fprintf('\nRecording post-trial loop diagnostics video... ');
+            vetStartTracking;
+            vetStartRecordingToFile(fullfile([saveFile '_diagnostics_PostTrialLoop.cam']));
+            pause(nSecsToSave);
+            vetStopRecording;
+            vetStopTracking;
+            fprintf('Done.\n');
+
+            % Let the Mac know we are done (sucessfully) with the post-trial diagnostics video recording
+            VSGOL.sendParamValue({VSGOL.DIAGNOSTIC_VIDEO_RECORDING_STATUS, 'sucessful'}, 'timeOutSecs', 2);
+
+        catch err
+            % Let the Mac know we are done (un-sucessfully)  with the post-trial diagnostics video recording
+            VSGOL.sendParamValue({VSGOL.DIAGNOSTIC_VIDEO_RECORDING_STATUS, 'not sucessful'}, 'timeOutSecs', 2);
+        end
+
         % Close the UDP connection
         VSGOL.shutDown();
 
