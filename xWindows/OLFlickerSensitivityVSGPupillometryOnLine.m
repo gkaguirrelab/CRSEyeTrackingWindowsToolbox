@@ -183,7 +183,10 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
                     params.run = true;
                 end
             end % while (params.run == false)
-
+            
+            % Reset the buffer
+            vetClearDataBuffer;
+            
             % Get the 'Go' signal
             % === NEW ====== Wait for ever to receive the StartTracking signal ==================
             VSGOL.receiveParamValue(VSGOL.EYE_TRACKER_STATUS,  ...
@@ -191,8 +194,6 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
                 'timeOutSecs', Inf, 'consoleMessage', 'Start tracking?');
             % === NEW ====== Wait for ever to receive the START signal ==================
 
-            % Reset the buffer
-            vetClearDataBuffer;
 
             % Check the 'stop' signal from the Mac
             % === NEW === Wait for ever to receive the stopTracking signal, then send the trial outcome ==================
