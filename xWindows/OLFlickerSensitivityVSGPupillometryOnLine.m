@@ -121,15 +121,15 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
             %error('offline mode not implemented at this time.  There is unfinished offline code present in this state of the routine.  This error will be removed once the offline code is completed at a future time.');
         end
 
-
+        % We start tracking here
+        vetStartTracking;
+        
         % ========================= Pre-trial video recording ==========================
         try
             fprintf('\nRecording pre-trial loop diagnostics video... ');
-            vetStartTracking;
             vetStartRecordingToFile(fullfile([saveFile '_diagnostics_PreTrialLoop.cam']));
             pause(nSecsToSave);
             vetStopRecording;
-            vetStopTracking;
             fprintf('Done.\n');
 
             % Let the Mac know we are done (successfully) with the post-trial diagnostics video recording
@@ -140,22 +140,13 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
             VSGOL.sendParamValue({VSGOL.DIAGNOSTIC_VIDEO_RECORDING_STATUS, 'not sucessful'}, 'timeOutSecs', 2);
             rethrow(err);
         end
-
-
+        
+        vetCreateCameraScreen;
+        
         %% Loop over trials
         for i = startTrialNum:nTrials
             %% Initializating variables
             params.run = false;
-
-            % Clear the buffer
-            vetClearDataBuffer;
-
-            % Stop the tracking in case it is still running
-            vetStopTracking;
-
-            %% Debug
-            %params.run = true;
-
 
             %% Check if we are ready to run
             checkCounter = 0;
@@ -193,19 +184,6 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
                 end
             end % while (params.run == false)
 
-
-            %if abortExperiment
-            %   break; 
-            %end
-
-            % Stop the tracking
-            vetStopTracking;
-            %WaitSecs(1);
-
-            % Start the tracking
-            vetStartTracking;
-            %WaitSecs(1);
-
             % Get the 'Go' signal
             % === NEW ====== Wait for ever to receive the StartTracking signal ==================
             VSGOL.receiveParamValue(VSGOL.EYE_TRACKER_STATUS,  ...
@@ -213,9 +191,8 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
                 'timeOutSecs', Inf, 'consoleMessage', 'Start tracking?');
             % === NEW ====== Wait for ever to receive the START signal ==================
 
-            if offline
-                %vetStartRecordingToFile([saveFile '-' num2str(i) '.cam']);
-            end
+            % Reset the buffer
+            vetClearDataBuffer;
 
             % Check the 'stop' signal from the Mac
             % === NEW === Wait for ever to receive the stopTracking signal, then send the trial outcome ==================
@@ -235,7 +212,6 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
 
             % Stop tracking
             vetStopTracking;
-            %vetDestroyCameraScreen; ??? Needed?
 
             % Get the transfer data
             goodCounter = 1;
@@ -449,12 +425,7 @@ function runComminicationTests(VSGOL)
 end
         
 function canRun = VSGOLEyeTrackerCheck(VSGOL)
-    
-    vetStopTracking;
-    WaitSecs(2);
-    
-    %vetCreateCameraScreen;
-    
+
     % === NEW ====== Wait for ever to receive the eye tracker status ==================
    	checkStart = VSGOL.receiveParamValue(VSGOL.EYE_TRACKER_STATUS,  ...
         'timeOutSecs', 2, 'consoleMessage', 'Start checking eye tracking ?');
@@ -465,7 +436,7 @@ function canRun = VSGOLEyeTrackerCheck(VSGOL)
         
         try
             fprintf('*** Start tracking...\n')
-            vetStartTracking;
+            vetClearDataBuffer;
             timeCheck = 5;
             tStart = GetSecs;
             
@@ -481,9 +452,6 @@ function canRun = VSGOLEyeTrackerCheck(VSGOL)
             VSGOL.sendParamValue({VSGOL.EYE_TRACKER_DATA_POINTS_NUM, sumTrackData}, ...
                 'timeOutSecs', 2.0, 'maxAttemptsNum', 3);
             % ==== NEW ============================================================
-
-            vetStopTracking;
-            WaitSecs(1);
 
             % === NEW ====== Wait for ever to receive the new eye tracker status ==================
             trackingResult = VSGOL.receiveParamValue(VSGOL.EYE_TRACKER_STATUS,  ...
