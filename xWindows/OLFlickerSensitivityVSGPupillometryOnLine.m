@@ -55,7 +55,7 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
     % Add path to brainard lab toolbox to access the OLVSGCommunicator class
     addpath(genpath('C:\Users\melanopsin\Documents\MATLAB\Toolboxes\BrainardLabToolbox'));
     
-    macHostIP = '130.91.72.120';
+    macHostIP = '130.91.72.122';
     winHostIP = '130.91.74.15';
     udpPort = 2007;
 
@@ -183,6 +183,9 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
                     params.run = true;
                 end
             end % while (params.run == false)
+            
+            % Reset the buffer
+            vetClearDataBuffer;
 
             % Get the 'Go' signal
             % === NEW ====== Wait for ever to receive the StartTracking signal ==================
@@ -190,9 +193,6 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
                 'expectedParamValue', 'startTracking', ...
                 'timeOutSecs', Inf, 'consoleMessage', 'Start tracking?');
             % === NEW ====== Wait for ever to receive the START signal ==================
-
-            % Reset the buffer
-            vetClearDataBuffer;
 
             % Check the 'stop' signal from the Mac
             % === NEW === Wait for ever to receive the stopTracking signal, then send the trial outcome ==================
@@ -209,9 +209,6 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
                 % Stop the tracking
                 vetStopRecording;
             end
-
-            % Stop tracking
-            vetStopTracking;
 
             % Get the transfer data
             goodCounter = 1;
@@ -293,8 +290,8 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
 
                 % Assign what we obtain to the data structure.
                 dataStruct.diameter = diameter;
-                dataStruct.time = time;
-                dataStruct.time_inter = time_inter;
+                dataStruct.time = time-time(1);
+                dataStruct.time_inter = time_inter-time(1);
                 %dataStruct.average_diameter = average_diameter;
 
                 dataRaw = transferData;
@@ -353,6 +350,9 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
             %     plot(badPupilTimeStamps/1000, zeros(size(badPupilTimeStamps)),'ro');
 
         end % for i
+        
+            % Stop tracking
+            vetStopTracking;
     
         % ========================= Post-trial video recording ==========================
         try
