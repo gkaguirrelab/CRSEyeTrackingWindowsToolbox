@@ -97,7 +97,7 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
         % Assemble dropbox paths
         if saveDropbox
             dropboxPath = 'C:\Users\melanopsin\Dropbox (Aguirre-Brainard Lab)\MELA_data';
-            savePath = fullfile(dropboxPath, protocolNameStr, obsID, obsIDAndRun);
+            savePath = fullfile(dropboxPath, protocolNameStr, obsID, datestr(now, 'mmddyy'), 'MatFiles', obsIDAndRun);
         else
             expPath = fileparts(mfilename('OLFlickerSensitivityVSGPupillometry.m'));
             savePath = fullfile(expPath,  protocolNameStr, obsID, obsIDAndRun);
