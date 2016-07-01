@@ -55,8 +55,8 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
     % Add path to brainard lab toolbox to access the OLVSGCommunicator class
     addpath(genpath('C:\Users\melanopsin\Documents\MATLAB\Toolboxes\BrainardLabToolbox'));
     
-    macHostIP = '130.91.72.122';
-    winHostIP = '130.91.74.15';
+    macHostIP = '128.91.12.106';
+    winHostIP = '128.91.12.103';
     udpPort = 2007;
 
     % === NEW ======  Instantiate a OLVSGcommunicator object ==============
@@ -145,6 +145,10 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
         
         %% Loop over trials
         for i = startTrialNum:nTrials
+            
+            checkTrials = 1:5:100;
+            %checkTrials = [1 3 5];
+            if ismember(i, checkTrials);
             %% Initializating variables
             params.run = false;
 
@@ -183,6 +187,7 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
                     params.run = true;
                 end
             end % while (params.run == false)
+            end
             
             % Reset the buffer
             vetClearDataBuffer;
