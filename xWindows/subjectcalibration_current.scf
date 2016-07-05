@@ -3,7 +3,7 @@ Video Eyetracker version=3.250
 Xpoints=3
 Ypoints=5
 NumOfPoints=15
-ScaleFactor=7.21350746154785
+ScaleFactor=6.93294383457729
 ViewingDistance=1000
 [Calibration Data]
 A11=1.15681483591332
