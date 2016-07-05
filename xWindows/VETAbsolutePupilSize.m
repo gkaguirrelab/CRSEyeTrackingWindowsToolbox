@@ -2,7 +2,7 @@
 clear; close all; clc
 
 recordingTimeMinutes = 30;
-recordingTimeSeconds = 5;
+recordingTimeSeconds = 60*5;
 nChunks = 6;
 
 % Initialize Cambridge Research System and Other Neccessary Variables
@@ -37,7 +37,7 @@ if vetSelectVideoSource(CRS.vsCamera) < 0
     error('*** Video source not selected.');
 end
 
-protocolNameStr = 'MelanopsinMR_AbsolutePupilSize';
+protocolNameStr = 'MelanopsinMRAbsolutePupilSize';
 obsID = GetWithDefault('> Enter observer ID', 'HERO_xxx1');
 
 dropboxPath = 'C:\Users\melanopsin\Dropbox (Aguirre-Brainard Lab)\MELA_data';
