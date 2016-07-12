@@ -146,7 +146,7 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
         %% Loop over trials
         for i = startTrialNum:nTrials
             
-            checkTrials = 1:5:100;
+            checkTrials = 1:6:100;
             %checkTrials = [1 3 5];
             if ismember(i, checkTrials);
             %% Initializating variables
