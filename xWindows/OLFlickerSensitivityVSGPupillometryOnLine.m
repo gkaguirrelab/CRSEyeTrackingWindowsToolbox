@@ -65,7 +65,7 @@ function [data, params] = OLFlickerSensitivityVSGPupillometryOnLine
           'localIP', winHostIP, ...    % required: the IP of this computer
          'remoteIP', macHostIP, ...    % required: the IP of the computer we want to conenct to
           'udpPort', udpPort, ...      % optional, with default value: 2007
-        'verbosity', 'none' ...        % optional, with default value: 'normal', and possible values: {'min', 'normal', 'max'},
+        'verbosity', 'max' ...        % optional, with default value: 'normal', and possible values: {'min', 'normal', 'max'},
     );
 
 
